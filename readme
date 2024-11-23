@@ -1,0 +1,15 @@
+so the aim of the project is to detect anomalies in three fundus images, (1.JPG, 2.JPG, 3.JPG), the expected results are (1 annotated.JPG, 2 annotated.JPG, 3 annotated.JPG), i worked on this bit by bit, each time i added a functionality, so every test(1 to 5) has his results in respetive folder "annotated_images(1 to 5)", so the final results are in the folder annotated_images5
+
+each test file has explanation in it, but in general i did :
+
+i used the function "cv2.threshold" for the most part to detect anomalies (the regions with unusual bright colors), unfortunatly the algorithm always detects the center of the fundus as anomalies, because it has bright intensity as well, i tried to seperate it by calculate the roundness of the anomaly and delete the ones with a higher roundness but some actual anomalies where getting removed as well, i could have reseach and worked more to find a solution but because of time i was not able to do it
+
+in test1 : i kept trying to find the best threshold value to seperate the anomalies, i setteled on 140 as a value after changing it manually and observing the results
+
+in test2 : i realized that img2 has a brighter intensity, and img 3 the opposite, so a single threshold value wouldn't work for both the images, or if we had more images with diffrent lightning and brightness, so i calculated the threshold based on the mean brightness of the whole image, and set a minimum of 100 (if the mean is below a 100), and a max of 150, the results were a bit better but not enough
+
+in test3 : i realised that the mean of the whole image is not good to detect anomalies, because of  different intensities of regions in the image, so i calculated the mean intensity in diffrent regions and used it to calculate diffrent threshold for every region, i devided the image into 400 parts (20 by 20), and repeated the process in test2 in every part, and then i combined the result in the whole image
+
+in test4 : i noticed that there are still some anomalies not getting detected (specialy in image 3 because of it's intensity level), so i changed the way of calculating the threshold, i tried with various methods i found after my research like : (Standard Deviation-Based Threshold, Percentile-Based Threshold, Otsu's Method for Local Thresholding ... ) , until i found and tried Contrast-Enhanced Thresholding, which gave the best result out of all of them, it uses local histogram equalization (CLAHE) to enhance contrast in each region before calculating the threshold, this method amplifies brightness differences, making anomalies more easy to detect, AND i replaced the background of the image with the nearest non background pixels, because with CLAHE method, the edges of the image were getting detected as anomalies because of the diffrent brightness in there region, and saved the background region as a mask, to later compare the anomalies if they are near it or not, and delete the ones near the edge
+
+in test5 i simply added some calculation to group the anomalies that are close to each other, and draw a bigger rectangle instead of multiple smaller ones
